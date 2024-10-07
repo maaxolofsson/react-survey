@@ -1,10 +1,14 @@
 import { useState } from "react";
+import AnswersList from "./AnswersList";
 
 function Survey() {
   const [open, setOpen] = useState(false); //Ignore this state
 
+  let formId = 0;
+
   // Object to save the data from form in
   const formDataDef = {
+    id: -10,
     color: "",
     spend_time: [],
     review: "",
@@ -13,9 +17,22 @@ function Survey() {
   };
 
   const [formData, setFormData] = useState(formDataDef);
+  const [answers, setAnswers] = useState([])
 
   const handleSubmitForm = (e) => {
     e.preventDefault(); // To avoid reloading page
+    const formMayExist = answers.find(ans => parseInt(ans.id) === parseInt(formData.id))
+    if (formMayExist === undefined) { // New answer
+      formData.id = formId;
+      formId++;
+      answers.push(formData)
+      setAnswers(answers)
+    } else { // Edited answer
+      const formMayExistIx = answers.indexOf(formMayExist)
+      answers[formMayExistIx] = formData
+      setAnswers(answers)
+    }
+
     console.log(formData); // Print the form in console
     setFormData(formDataDef); // Resetting the form state
   };
@@ -37,12 +54,16 @@ function Survey() {
     }
   };
 
+  const handleEdit = (editedData) => {
+    setFormData(editedData)
+  }
+
   return (
     <>
       <main className="survey">
         <section className={`survey__list ${open ? "open" : ""}`}>
           <h2>Answers list</h2>
-          {/* answers should go here */}
+          <AnswersList answersList={answers} handleEdit={handleEdit}></AnswersList>
         </section>
         <section className="survey__form">
           <form className="form">
